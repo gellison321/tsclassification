@@ -23,13 +23,11 @@ $ pip install tsclassification
 ### <p align="center"> [Full Implementation](https://github.com/gellison321/tsclassification/blob/main/implementation.ipynb)
 
 ```python
-import pandas as pd
 from tsclassification import ShapeletClassifier
+import pandas as pd
 
 # Loading Example Data 
-with open('./data/sample_data/001_labeled.csv','rb') as file:
-    df = pd.read_csv(file)
-
+df = pd.read_csv('./data/sample_data/001_labeled.csv')
 X = df['waist_vm']
 y = df['activity']
 
