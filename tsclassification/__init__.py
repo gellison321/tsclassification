@@ -1,1 +1,1 @@
-from tsclassification.classifier import ShapeletClassifier
+from .classifier import ShapeletClassifier

@@ -7,49 +7,105 @@
 
 ## <p align="center"> A shapelet classifier for time series data.
 
-### <p align="center">[Install From pip](https://pypi.org/project/tsclassification/)
+
+## [Link to Paper on IEEE](https://ieeexplore.ieee.org/document/10459802)
+## References
+> "Real-Time Human Activity Classification Using Gait Cycle Averaging and Biometric Heuristics"<br/>
+> Grant Ellison and M.P. Markovic and Delaram Yazdansepas<br/>
+> 22nd International Conference on Machine Learning and Applications (ICMLA)<br/>
+
+``` bibtex
+@inproceedings{gellison23,
+  title={Real-Time Human Activity Classification Using Gait Cycle Averaging and Biometric Heuristics},
+  author={Grant Ellison and M.P. Markovic and Delaram Yazdansepas},
+  journal={22nd International Conference on Machine Learning and Applications (ICMLA)},
+  year={2023},
+  publisher={IEEE},
+  DOI = {10.1109/ICMLA58977.2023.00056}
+}
+```
+
+## Install From pip
 ```
 $ pip install tsclassification
 ```
 
-### Link to paper here
-
-#### Dependencies
-- numpy
-- tsshapelet
-- sklearn
-
-##  <p align="center"> IMPLEMENTATION
-### <p align="center"> [Full Implementation](https://github.com/gellison321/tsclassification/blob/main/implementation.ipynb)
+## Quick Documentation
 
 ```python
-from tsclassification import ShapeletClassifier
-import pandas as pd
-
-# Loading Example Data 
-df = pd.read_csv('./data/sample_data/001_labeled.csv')
-X = df['waist_vm']
-y = df['activity']
-
-# Shapelet classification with MLP classifier
-clf = ShapeletClassifier(metric = 'dtw', # for comparing incoming data to shapelets
-                         window = 300, # size of window to be classified
-                         smoothing_period = 1, # for incoming data, and shapelet extraction
-                         thres = 0.8, # for all peak extraction (phase-sync & shapelet extraction)
-                         min_dist = 50 # for all peak extraction (phase-sync & shapelet extraction)
+clf = ShapeletClassifier(metric = 'dtw', # 'dtw' or 'euclidean'
+                         classification_window = 300, # the discrete time steps to classify
+                         w = 0.5 # warping constraint for the dtw measure
                          )
-
-clf.fit(X, y, 
-        classifier = 'MLP', max_iter = 500, hidden_layers_sizes = (100,), function = 'relu', # MLP parameters
-        extraction = 'peak', barycenter = 'interpolated', # shapelet extraction parameters
-        sample = 100, sample_method = 'sample_slide', sample_step = 30 # sampling parameters for compiling MLP training data
-        )
-
-# Score each shapelet against a given time series and return a multi-label output
-km.predict([[]])
-
 ```
-### <p align="center"> [Full Shapelet Class Shapelet Extraction](https://github.com/gellison321/tsshapelet/blob/main/implementation.ipynb)
 
+```python
 
+'''
+Fits the model to the provided dataset by extracting shapelets, compiling the data for training, 
+and then training a neural network classifier based on the extracted shapelets and compiled data.
 
+Parameters
+
+        - X (array-like): A 1D time series dataset.
+
+        - y (array-like): The target values (class labels) for the samples in X.
+
+        - shapelet_method (str): The method used to extract shapelets from the dataset. 
+
+                                - 'barycenter' : Performs peak-analysis to extract subsequences.
+                                        Averages subsequences to a barycenter shapelet.
+
+                                - 'random' : Chooses a random qty of subsequences. Chooses the one
+                                        with the minimum cumulative distance to each other subsequence.
+
+                                - 'exhaustive : Chooses subsequences using a stepped, sliding
+                                        window. Chooses the one with the minimum cumulative distance to
+                                        each other subsequence.
+
+        - compiler_method (str): The method used to compile the dataset for training the neural network after 
+                                        shapelet extraction. 
+
+                                - 'bootstrapped' : slides a stepped window,  randomly placed, for
+                                        set number of samples. Repeats until the total qty of samples have been extracted. 
+
+                                - 'slide' : A simple, stepped, sliding window.
+
+                                - 'random' : Randomly positioned, fixed windows are extracted until 
+                                        the total qty of samples have been extracted.
+
+        - **kwargs: Additional keyword arguments that are passed to the shapelet extraction method and 
+                neural network training procedure.
+
+Note
+        The choice of `shapelet_method` and `compiler_method`, along with specific parameters passed 
+        through `**kwargs`, significantly affects the model's performance and training time. 
+        It's essential to choose these parameters carefully based on the dataset characteristics and the
+        analysis goals.
+'''
+
+clf.fit(X, # 1d time series array
+        y, # 1d list of classes
+        
+        shapelet_method = 'barycenter',
+        sampling_method = 'bootstrapped',
+
+        qty = 100, # number of samples to extract for training the MLP
+        window = 100, # window size of 'slide' method
+        step = 30, # the step size for the sliding window technique
+        min_dist = 70, # the minimum peak distance for barycenter shapelet method
+        max_dist = 120, # the maximum peak distance for barycenter shapelet method
+        verbose = False, 
+        
+        max_iter = 2000, # **kwargs pass through to SKLearn's MLP class
+        hidden_layer_sizes = (10,)
+        )
+```
+
+```python
+clf.predict([[]]) # takes in a list of time series arrays and returns a list of predicted classes
+```
+
+```python
+clf.save('path/to/file') # saves the whole classifier object to a pkl file
+```
