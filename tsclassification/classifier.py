@@ -235,4 +235,3 @@ class ShapeletClassifier():
             path += '.pkl'
             with open(path, 'wb') as f:
                 pickle.dump(self, f)
-

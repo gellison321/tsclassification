@@ -5,14 +5,24 @@
 </p>
 </div>
 
-## <p align="center"> A shapelet classifier for time series data.
+## <p align="center"> A Tool for Time Series Classification Using Shapelets
+ 
+tsclassification provides a solution for quickly and accurately classifying time series data. It leverages shapelet-based learning techniques to identify the most informative subsequences within time series data. The algorithm was originally built for human activity recognition, but can generalize to many applications in time series pattern matching and classification.
 
+## Key Features:
+### Shapelet Extraction: 
+Utilizes various methods to extract class-specific shapelets that best represent the patterns in the class' time series data. Shapelet learning is hardware accelerated.
+
+### Classification: 
+Scores incoming time series against class shapelets, passes the results through a multilayer perceptron, and provides a multiclass classification label.
+
+
+
+
+### Research and Foundations
+The methodology in tsclassification is detailed in the paper "Real-Time Human Activity Classification Using Gait Cycle Averaging and Biometric Heuristics" by Grant Ellison, M.P. Markovic, and Delaram Yazdansepas, presented at the 22nd International Conference on Machine Learning and Applications (ICMLA).
 
 ## [Link to Paper on IEEE](https://ieeexplore.ieee.org/document/10459802)
-## References
-> "Real-Time Human Activity Classification Using Gait Cycle Averaging and Biometric Heuristics"<br/>
-> Grant Ellison and M.P. Markovic and Delaram Yazdansepas<br/>
-> 22nd International Conference on Machine Learning and Applications (ICMLA)<br/>
 
 ``` bibtex
 @inproceedings{gellison23,
@@ -30,9 +40,11 @@
 $ pip install tsclassification
 ```
 
-## Quick Documentation
+## Documentation
 
 ```python
+# ShapeletClassifier
+
 clf = ShapeletClassifier(metric = 'dtw', # 'dtw' or 'euclidean'
                          classification_window = 300, # the discrete time steps to classify
                          w = 0.5 # warping constraint for the dtw measure
@@ -103,9 +115,18 @@ clf.fit(X, # 1d time series array
 ```
 
 ```python
-clf.predict([[]]) # takes in a list of time series arrays and returns a list of predicted classes
+# takes in a list of time series arrays and returns a list of predicted classes
+
+clf.predict([[]]) 
 ```
 
 ```python
-clf.save('path/to/file') # saves the whole classifier object to a pkl file
+# Saving and loading the model 
+
+clf.save('path/to/file') # pickles the model
+
+with open('path/to/file', 'rb') as f:
+        clf = pickle.load(f)
+
+clf.predict([[]])
 ```
